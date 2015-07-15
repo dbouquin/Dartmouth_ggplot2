@@ -1,0 +1,202 @@
+---
+title: "An Introduction to ggplot2"
+author: "Daina Bouquin"
+output: html_document
+---
+
+All code associated with this presentation is available on [GitHub][1].
+
+************
+
+*Objectives:*
+1. Familiarize you with the `ggplot2` R package
+2. Introduce you to the `qplot()` function
+3. Briefly demonstrate the more advanced `ggplot()` function
+
+************
+<h3> What is `ggplot2`?</h3>
+
+Created by Hadley Wickham, `ggplot2` is an incredibly popular and powerful graphics language for creating elegant and complex plots. Origianlly based on Leland Wilkinson's *The Grammar of Graphics*, `ggplot2` allows you to create graphs that represent both univariate and multivariate numerical and categorical data in a straightforward manner. Grouping can be represented by color, symbol, size, and transparency.
+
+Data visualizations that would require dozens of lines of code on other platforms or with base R graphics, only require a few quick lines once we have installed `ggplot2`. For example:
+
+```{r}
+library(gcookbook)    # R Graphics Cookbook - package contains the data for this first example
+library(grid)         # Need for arrow() function
+library(ggplot2)
+```
+```{r, echo = FALSE}
+# Data pre-processing steps
+
+islice <- subset(isabel, z == min(z))
+
+# keep 1 out of every 'by' values in vector x
+every_n <- function(x, by = 2) {
+  x <- sort(x)
+  x[seq(1, length(x), by = by)]
+}
+
+# keep 1 out of every 4 values in x and y
+keepx <- every_n(unique(isabel$x), by = 4)
+keepy <- every_n(unique(isabel$y), by = 4)
+
+# keep only those rows where x value is in keepx and y value is in keepy
+islicesub <- subset(islice, x %in% keepx & y %in% keepy)
+
+# calculate speed components
+islicesub$speedxy <- sqrt(islicesub$vx^2 + islicesub$vy^2)
+
+# Get USA map data
+usa <- map_data("usa")
+```
+
+```{r, warning=FALSE}
+ggplot(islicesub, aes(x=x, y=y)) +
+  geom_segment(aes(xend = x+vx/50, yend = y+vy/50, colour = speed),
+               arrow = arrow(length = unit(0.1,"cm")), size = 0.6) +
+  scale_colour_continuous(low="grey80", high="darkred") +
+  geom_path(aes(x=long, y=lat, group=group), data=usa) +
+  coord_cartesian(xlim = range(islicesub$x), ylim = range(islicesub$y))
+```
+
+************
+
+
+<h3>`qplot()`: the "Quick Plot"</h3>
+
+**All qplots contain:**
+
+* aesthetics: size, shape, color, etc.
+* geoms: points, lines, bars, etc.
+
+Plots are draw on a specific coordinate system
+
+Factors are important for plotting subsets
+
+Data should be organized in a dataframe
+
+We will use the dataset `mpg` for our example. `mpg` is part of the ggplot2 package.
+```{r}
+str(mpg)
+````
+str(mpg)
+
+**We will first examine the "base" plotting functions of R for comparison**
+
+With base functions we start with a blank canvas and build up piece by piece. This can get difficult pretty quickly if we're trying to make anything complicated.
+
+Note that the `$` allows us to point to the column names in the dataset
+```{r}
+plot(mpg$displ, mpg$hwy)
+```
+
+Now try the `qplot()` from `ggplot2`
+```{r}
+qplot(displ, hwy, data = mpg)
+```
+
+What do you notice that's different?
+
+We'll start adding aesthetics now. Here we use the `color` parameter to indicate that different levels of drive variable (`drv`) should each be shown in a different color. This is possible through the use of factors
+
+```{r}
+qplot(displ, hwy, data = mpg, color = drv)
+```
+
+*Note how the legend gets placed automatically*- it can be difficult to customize `qplot()` so it's important to learn the higher functionality of ggplot2 as well.
+
+Lets try some more options for `qplot()`
+
+Lets add a geom (statistic) summary of data to the plot to smooth the data and see general trends. The grey zone indicates my .95 confidence interval.
+
+
+```{r}
+qplot(displ, hwy, data = mpg, geom = c("point", "smooth"), method = lm)
+```
+
+We can use `qplot()` to make all kinds of plots including histograms
+Here's an example of a histogram using the "fill" argument. Note that we do not need to specify the `"histogram"` parameter but I have done so here for clarity. Entering just one variable (`hwy`) will create a histogram.
+```{r}
+qplot(hwy, data = mpg, geom= "histogram", fill = drv, binwidth = 1)
+```
+
+As an alternative to approaches like color coding, ggplot2 let's us use facets to split variables by their levels.
+
+The variable in the left facets argment specifies rows, and right arguments specifies columns (drv in this case). The data arguments are separated by  tilda
+```{r}
+qplot(displ, hwy, data = mpg, facets = . ~ drv)
+```
+
+How about we try a histogram?
+```{r}
+qplot(hwy, data = mpg, geom = "histogram", facets = drv ~ . , binwidth = 1)
+```
+
+It can be difficult to customize `qplot()` though remember, so learning full `ggplot2` functionality is important; for this reason we'll briefly look at `ggplot()`.
+
+************
+
+<h3>`ggplot()` in Brief </h3>
+
+`ggplot()` is a bit more advanced than qplot, but it's incredibly robust and customizable.
+
+You create a `ggplot()` object, and you can then add "layers" to your plot to customize it.
+
+```{r}
+
+mpg_1 <- ggplot(mpg, aes(drv, hwy))
+```
+
+Now if I try running this I'll get an error because there are no "layers" in the plot
+```{r, error=TRUE}
+mpg_1
+```
+
+Note though that I have created a ggplot() object, which means I can run functions on it.
+For example, I can take a summary of the object that tells me what's going on with it:
+
+```{r}
+summary(mpg_1)
+```
+
+So what I need to do is add some "layers"
+Here I've added the `geom_violin()` function. Violin plots are ordinarily quite difficult to create but here it's easy.
+
+```{r}
+mpg_vplot <- mpg_1 + geom_violin()
+mpg_vplot
+```
+
+If I want to show more granularly the distribution of the points, I can just literally "add" more geoms.
+
+*Note I'm adjusting my spacing here to make the code easier to read.*
+
+```{r}
+mpg_vplot <- mpg_1 + geom_violin() +
+  geom_point()
+
+mpg_vplot
+```
+
+We can also start to play with color packages and different types of geoms and parameters from here.
+
+For example, we can define a color blind friendly palette using hexadecimal codes or "hex color codes" and create a faceted histogram to show the count of cars by `drv` and `cyl`:
+
+```{r}
+# color blind friendly palette:
+cbPalette <- c("#E69F00", "#56B4E9", "#009E73")
+
+scale_fill_manual(values=cbPalette)
+
+mpg_2 <- ggplot(mpg, aes(drv, fill = drv))
+
+cb_plot <- mpg_2  +
+  geom_bar(width = .5) +
+  facet_wrap(~ cyl) +
+  scale_fill_manual(values=cbPalette)
+
+cb_plot
+
+```
+
+[1]: https://github.com/dbouquin
