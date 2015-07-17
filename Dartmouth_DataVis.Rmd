@@ -18,7 +18,7 @@ All code associated with this presentation is available on [GitHub][1].
   
 Created by Hadley Wickham, `ggplot2` is an incredibly popular and powerful graphics language for creating elegant and complex plots. Originally based on Leland Wilkinson's *The Grammar of Graphics*, `ggplot2` allows you to create graphs that represent both univariate and multivariate numerical and categorical data in a straightforward manner. Grouping can be represented by color, symbol, size, and transparency.
 
-Data visualizations that would require dozens of lines of code on other platforms or with base R graphics, only require a few quick lines once we have installed `ggplot2`. For example:
+Data visualizations that would require dozens of lines of code on other platforms or with base R graphics, only require a few quick lines once we have installed `ggplot2`. You can use `install.packages()` to install packages from [CRAN][2] For example:
   
 ```{r}     
 library(gcookbook)    # R Graphics Cookbook - package contains the data for this first example
@@ -205,4 +205,4 @@ cb_plot
 ```
 
 [1]: https://github.com/dbouquin/Dartmouth_ggplot2
-
+[2]: https://cran.r-project.org/
