@@ -23,6 +23,7 @@ Data visualizations that would require dozens of lines of code on other platform
 ```{r}     
 library(gcookbook)    # R Graphics Cookbook - package contains the data for this first example
 library(grid)         # Need for arrow() function
+library(maps)         # Need for "usa" data points
 library(ggplot2)
 ```
 ```{r, echo = FALSE} 
