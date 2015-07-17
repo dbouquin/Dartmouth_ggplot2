@@ -80,7 +80,6 @@ We will use the dataset `mpg` for our example. `mpg` is part of the ggplot2 pack
 ```{r}
 str(mpg)
 ````
-str(mpg)
 
 **We will first examine the "base" plotting functions of R for comparison**
   
